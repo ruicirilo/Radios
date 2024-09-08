@@ -1,0 +1,334 @@
+<html lang="en" >
+<head><script src="/gdpr/gdprscript.js?buildTime=1648501434"></script>
+  <meta charset="UTF-8">
+  <title>CodePen - Webradios Player with Plyr v3</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.6/plyr.css'>
+
+<style>
+:root {
+  --colorDark1: #353535;
+  --colorPen: #bdbdbd;
+}
+
+*,::before,::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  display: flex;
+  flex-direction: column;
+  background: #262626;
+  color: #fff;
+  font-family: "Oxygen", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  line-height: 1.618;
+  font-size: 16px;
+}
+
+header {
+  width: 100%;
+  background: var(--colorDark1) linear-gradient(to bottom, #393939 0%, #323232 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+  color: yellowgreen;
+  font-size: 1.6rem;
+  font-weight: bold;
+  padding: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+footer {
+  width: 100%;
+  background-color: var(--colorDark1);
+  color: var(--colorPen);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.75rem;
+  position: sticky;
+  bottom: 0;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 90%;
+  padding: 1rem;
+}
+
+#nowPlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+#npTitle {
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+#plList {
+  list-style: none;
+  padding: 0;
+}
+
+#plList li {
+  cursor: pointer;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+#plList li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.plItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.plNum {
+  margin-right: 1rem;
+}
+
+.plTitle {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plLength {
+  border: 1px solid white;
+  border-radius: 50%;
+  padding: 0.5rem;
+}
+
+.plyr--audio .plyr__controls {
+  background-color: transparent;
+  color: var(--colorPen);
+}
+
+.plyr--audio .plyr__controls button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  header {
+    font-size: 1.4rem;
+    padding: 0.5rem;
+  }
+
+  #nowPlay {
+    flex-direction: column;
+  }
+
+  #npTitle {
+    font-size: 1.2rem;
+  }
+
+  #plList li {
+    padding: 0.5rem;
+  }
+
+  .plLength {
+    padding: 0.3rem;
+  }
+
+  audio {
+    width: 100%;
+  }
+}
+
+</style>
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<header>
+		<div id="nowPlay">
+			<div id="npTitle"></div>
+		</div>
+	</header>
+
+	<div class="container">
+		<div id="mainwrap">
+			<div id="plwrap">
+				<ul id="plList"></ul>
+			</div>
+		</div>
+    </div>
+
+	<footer>
+		<div id="audiowrap">
+		  <div id="audio0">
+			  <audio id="audio1" controls autoplay>Sorry, but your browser does not support HTML5 Audio.</audio>
+		  </div>
+	  </div>
+</footer>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.6/plyr.min.js'></script>
+<script src='https://codepen.io/AgnusDei/pen/bGExVLO.js'></script>
+
+<script>
+// Add zero before numbers < 10
+function minTwoDigits(n) {
+  return (n < 10 ? '0' : '') + n;
+}
+
+jQuery(function ($) {
+    'use strict'
+    var supportsAudio = !!document.createElement('audio').canPlayType;
+    if (supportsAudio) {
+        // initialize plyr
+        var player = new Plyr('#audio1', {
+          volume: 0.5,
+          autoplay: true,
+          muted: false,
+          controls: [
+                'play',
+                'progress',
+                'current-time',
+                'duration',
+                'mute',
+                'volume'
+            ]
+        });
+        // initialize playlist and controls
+        var index = 0,          /* Choose your radio at start : Index - 1 */
+            trackNumber = 0,    /* List numerotation */
+            tracks = [{
+                "name": "Radio Record",
+                "note": "Record FM Lisboa 107.7 MHz FM.",
+                "file": "https://nl.digitalrm.pt:8010/stream"
+            }, {
+                "name": "RFM",
+                "note": "RFM Lisboa, 92.4 MHz FM rock.folk",
+                "file": "https://23543.live.streamtheworld.com/RFM_SC?dist=onlineradiobox "
+            }, {
+                "name": "Radio Comercial",
+                "note": "Radio Comercial Lisboa, 97.4 MHz FM pop.news.folk",
+                "file": "https://mcrscast1.mcr.iol.pt/comercial.mp3"
+            }, {
+                "name": "Smooth FM",
+                "note": "Smooth FM Lisboa, 103.0 MHz FM pop.jazz.vocal",
+                "file": "https://mcrscast.mcr.iol.pt/smoothfm"
+            }, {
+                "name": "Cidade FM",
+                "note": "Cidade FM Lisboa, 91.6-106.2 MHz FM pop.talk.hits",
+                "file": "https://mcrscast.mcr.iol.pt/cidadefm"
+            }, {
+                "name": "Hard & Heavy Metal Hits Radio",
+                "note": "Hard & Heavy Metal Hits Radio rock.heavy metal.hard rock.metal.power metal",
+                "file": "https://stream.zeno.fm/6qkgp2q90feuv"
+            }, {
+                "name": "TSF Radio Noticias",
+                "note": "TSF Radio Noticias Lisboa, 89.5 MHz FM news.talk.sports",
+                "file": "https://tsfdirecto.tsf.pt/tsfdirecto.mp3"
+            }, {
+                "name": "RES FM 107.9",
+                "note": "RES FM 107.9 dance.electronic.house.techno",
+                "file": "https://sp0.redeaudio.com:7016/stream2"
+            }, {
+                "name": "Rádio do Folclore Português",
+                "note": "Rádio do Folclore Português folk.culture",
+                "file": "https://sonic.servsonic.com/8012/stream"
+            }, {
+                "name": "Radio Voz de Santo Tirso",
+                "note": "Radio Voz de Santo Tirso Santo Tirso, 107.4 MHz FM pop.news,talk",
+                "file": "https://radios.justweb.pt/8024/stream"
+            }, {
+                "name": "Beat Fm Rádio",
+                "note": "Beat Fm Rádio dance.house.techno",
+                "file": "https://eapps-cs.herokuapp.com/http://185.32.188.17:8043/stream"
+            }, {
+                "name": "Radar FM",
+                "note": "Radar FM Lisboa, 97.8 MHz FM rock.indie.alternative",
+                "file": "https://proic1.evspt.com/radar_aac"
+            }, {
+                "name": "Rádio Motard FM",
+                "note": "Rádio Motard FM rock.metal.80s",
+                "file": "https://sp0.redeaudio.com/8096/stream"
+            }, {
+                "name": "Radio Metal On: The Heavy",
+                "note": "Radio Metal On: The Heavy heavy metal.hard rock.power metal",
+                "file": "https://radiometalon.com/radio/8000/radio.mp3"
+            }, {
+                "name": "Rádio Voz do Neiva",
+                "note": "Rádio Voz do Neiva Braga, 98.7 MHz FM news.talk.folk.sports",
+                "file": "https://sp0.redeaudio.com/8092/stream"
+            }, {
+                "name": "Hiper FM",
+                "note": "Hiper FM Rio Maior, 104.6 MHz FM dance.rock.pop",
+                "file": "https://centova.radio.com.pt/proxy/500?mp=/stream"
+            }, {
+                "name": "Web Rádio Portugal Online",
+                "note": "Web Rádio Portugal Online rock.pop.news.90s",
+                "file": "https://sp0.redeaudio.com/9838/stream"
+            }, {
+                "name": "Radio Festival",
+                "note": "Radio Festival Funchal, 98.4 MHz FM pop.news.entertainment",
+                "file": "https://audio.serv.pt/8012/stream.mp3?_=5"
+            }, {
+                "name": "ROXX 2 METAL",
+                "note": "ROXX 2 METAL rock.metal",
+                "file": "https://myradio24.org/6359"
+            }, {
+                "name": "Radio Nova",
+                "note": "Radio Nova Porto, 98.9 MHz FM pop.folk",
+                "file": "https://centova.radio.com.pt/proxy/528?mp=/stream"
+            }],
+            buildPlaylist = $(tracks).each(function(key, value) {
+                trackNumber++;
+                var trackName = value.name,
+                    trackNote = value.note;
+                $('#plList').append('<li> \
+                    <div class="plItem"> \
+                        <div class="plNum">' + minTwoDigits(trackNumber) + '.</div> \
+                        <div class="plTitle">' + trackName + '</div> \
+                        <div class="plLength" aria-label="' + trackNote + '">?</div> \
+                    </div> \
+                </li>');
+            }),
+            trackCount = tracks.length,
+            npTitle = $('#npTitle'),
+            audio = $('#audio1').get(0),
+            li = $('#plList li').on('click', function () {
+                var id = parseInt($(this).index());
+              if (id !== index) {
+                playTrack(id);
+              }
+            }),
+            loadTrack = function (id) {
+                $('.plSel').removeClass('plSel');
+                $('#plList li:eq(' + id + ')').addClass('plSel');
+                npTitle.text(tracks[id].name);
+                index = id;
+                audio.src = tracks[id].file;
+            },
+            playTrack = function (id) {
+                loadTrack(id);
+                audio.play();
+            };
+        loadTrack(index);
+    } else {
+        var noSupport = $('#audio1').text();
+        alert(noSupport);
+    }
+});
+
+</script>
+
+</body>
+</html>
