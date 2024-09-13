@@ -180,14 +180,12 @@ footer {
     margin: 0.2rem 0;
   }
 }
-
-
   </style>
 </head>
 <body>
   <header>
     <div id="nowPlay">
-      <div id="npTitle"></div>
+      <div id="npTitle">Loading...</div>
     </div>
   </header>
 
@@ -203,7 +201,7 @@ footer {
     <div id="audiowrap">
       <div id="audio0">
         <audio id="audio1" controls autoplay>Sorry, but your browser does not support HTML5 Audio.</audio>
-        <div id="npArtistSong"></div>
+        <div id="npArtistSong">No song information available</div>
       </div>
     </div>
   </footer>
@@ -229,7 +227,7 @@ footer {
 
         var index = 0,
             trackNumber = 0,
-       tracks = [{
+            tracks = [{
                 "name": "Radio Record",
                 "note": "Record FM Lisboa 107.7 MHz FM.",
                 "file": "https://nl.digitalrm.pt:8010/stream"
@@ -311,7 +309,7 @@ footer {
                 "file": "https://centova.radio.com.pt/proxy/528?mp=/stream"
             }],
 
-            buildPlaylist = $(tracks).each(function (key, value) {
+        buildPlaylist = $(tracks).each(function (key, value) {
               trackNumber++;
               var trackName = value.name,
                   trackNote = value.note;
@@ -349,19 +347,23 @@ footer {
           audio.play();
         };
 
+        // Função para buscar as informações da música/artista
         var fetchArtistSongInfo = function (radioUrl) {
           $.ajax({
-            url: `https://api-v2.streamafrica.net/icyv2?url=${radioUrl}`,
+            url: `https://api-v2.streamafrica.net/icyv2?url=${encodeURIComponent(radioUrl)}`,
             method: 'GET',
             success: function (response) {
-              if (response && response.songtitle) {
-                npArtistSong.html(`${response.songtitle}`);
+              console.log(response);  // Verifique o que a API está retornando
+              
+              if (response && response.artist && response.song) {
+                npArtistSong.html(`${response.artist} <br> ${response.song}`);
               } else {
-                npArtistSong.html('');
+                npArtistSong.html('Nenhuma informação de música disponível');
               }
             },
-            error: function () {
-              npArtistSong.html('');
+            error: function (xhr, status, error) {
+              console.log("Erro ao buscar as informações: ", error);
+              npArtistSong.html('Erro ao buscar informações da música');
             }
           });
         };
