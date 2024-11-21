@@ -350,7 +350,7 @@ footer {
         // Função para buscar as informações da música/artista
         var fetchArtistSongInfo = function (radioUrl) {
           $.ajax({
-            url: `https://twj.es/radio_info/?radio_url=${encodeURIComponent(radioUrl)}`,
+            url: `https://radio-metadata-api-main.vercel.app/radio_info/?radio_url=${encodeURIComponent(radioUrl)}`,
             method: 'GET',
             success: function (response) {
               console.log(response);  // Verifique o que a API está retornando
